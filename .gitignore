@@ -1,0 +1,27 @@
+# AWS CLI & SDK files
+.aws/
+*.aws.json
+*.aws.yml
+
+# CloudFormation/Serverless artifacts
+.cdk/
+.cdk.out/
+**/cdk.out/
+**/.cdk.staging/
+**/node_modules/
+**/dist/
+**/build/
+**/.serverless/
+
+# Terraform files
+.terraform/
+*.tfstate
+*.tfstate.backup
+*.tfvars
+
+# IDE/Editor files (optional but recommended)
+.vscode/
+.idea/
+*.swp
+*.swo
+*.DS_Store

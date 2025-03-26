@@ -30,3 +30,15 @@ jobs:
             --template-file cloudformation/global-resources.yaml \
             --stack-name dr-global-resources \
             --capabilities CAPABILITY_IAM
+            - name: Deploy Secondary Region (us-west-2)
+            run: |
+              aws cloudformation deploy \
+                --template-file cloudformation/secondary-region/main.yaml \
+                --stack-name dr-secondary-resources \
+                --region us-west-2 \
+                --capabilities CAPABILITY_IAM
+      - name: Terraform Init/Apply
+        run: |
+          cd infrastructure/terraform
+          terraform init
+          terraform apply -auto-approve                

@@ -1,0 +1,22 @@
+Resources:
+  # Multi-AZ RDS Database
+  PrimaryDB:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      Engine: mysql
+      MultiAZ: true
+      BackupRetentionPeriod: 7
+      DBInstanceClass: db.t3.medium
+
+  # S3 Bucket with Cross-Region Replication
+  PrimaryBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      VersioningConfiguration:
+        Status: Enabled
+      ReplicationConfiguration:
+        Role: !GetAtt ReplicationRole.Arn
+        Rules:
+          - Destination:
+              Bucket: !Sub "arn:aws:s3:::${SecondaryBucket}"
+            Status: Enabled

@@ -1,0 +1,38 @@
+
+---
+
+### **2. `cloudformation/global-resources.yaml` (Route 53 & Global Accelerator)**
+```yaml
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Global resources (Route 53, Global Accelerator)"
+
+Resources:
+  # Route 53 Failover Setup
+  PrimaryRecord:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneName: example.com.
+      Name: app.example.com
+      Type: A
+      Failover: PRIMARY
+      HealthCheckId: !Ref PrimaryHealthCheck
+      SetIdentifier: "primary"
+      TTL: 60
+
+  SecondaryRecord:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneName: example.com.
+      Name: app.example.com
+      Type: A
+      Failover: SECONDARY
+      HealthCheckId: !Ref SecondaryHealthCheck
+      SetIdentifier: "secondary"
+      TTL: 60
+
+  # Global Accelerator
+  MyGlobalAccelerator:
+    Type: AWS::GlobalAccelerator::Accelerator
+    Properties:
+      Enabled: true
+      IpAddressType: IPV4

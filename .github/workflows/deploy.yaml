@@ -1,0 +1,32 @@
+name: Deploy AWS DR Infrastructure
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write  # Required for AWS OIDC auth
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: us-east-1
+          role-to-assume: arn:aws:iam::123456789012:role/GitHubActionsRole
+          role-session-name: GitHubActions-Deploy
+
+      - name: Deploy Global Resources
+        run: |
+          aws cloudformation deploy \
+            --template-file cloudformation/global-resources.yaml \
+            --stack-name dr-global-resources \
+            --capabilities CAPABILITY_IAM

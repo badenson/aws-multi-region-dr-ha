@@ -1,6 +1,7 @@
 Cloudformation template.yaml:
 
-Parameters to Insert
+Parameters to Inserrt 
+
 You need to insert the following parameters into the template:
 
 EnvironmentName: The name of your environment (e.g., prod, dev).

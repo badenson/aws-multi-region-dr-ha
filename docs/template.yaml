@@ -1,0 +1,93 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Multi-Region Disaster Recovery and High Availability Template
+
+Parameters:
+  # **Environment Name**
+  EnvironmentName:
+    Type: String
+    Description: Environment name (e.g., prod, dev)
+  
+  # **Regions to Deploy**
+  DeployRegions:
+    Type: CommaDelimitedList
+    Description: AWS regions to deploy resources to (e.g., us-east-1, eu-west-1)
+  
+  # **VPC CIDR Blocks**
+  VpcCidrBlock:
+    Type: String
+    Description: CIDR block for the VPC (e.g., 10.0.0.0/16)
+  
+  # **Subnet CIDR Blocks**
+  SubnetCidrBlock:
+    Type: String
+    Description: CIDR block for the subnet (e.g., 10.0.1.0/24)
+  
+  # **RDS Database Instance Class**
+  RdsInstanceClass:
+    Type: String
+    Description: RDS instance class (e.g., db.t3.micro)
+  
+  # **RDS Database Engine**
+  RdsEngine:
+    Type: String
+    Description: RDS database engine (e.g., postgres)
+  
+  # **RDS Master Username**
+  RdsMasterUsername:
+    Type: String
+    Description: Master username for the RDS database
+  RdsMasterPassword:
+    Type: String
+    Description: Master password for the RDS database
+    NoEcho: true
+
+Resources:
+  # **VPC**
+  MyVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: !Ref VpcCidrBlock
+
+  # **Subnet**
+  MySubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref MyVPC
+      CidrBlock: !Ref SubnetCidrBlock
+
+  # **RDS Multi-AZ Database**
+  MyRDSInstance:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBInstanceClass: !Ref RdsInstanceClass
+      Engine: !Ref RdsEngine
+      MasterUsername: !Ref RdsMasterUsername
+      MasterUserPassword: !Ref RdsMasterPassword
+      MultiAZ: true
+      VPCSecurityGroups:
+        - !GetAtt 'MySecurityGroup.GroupId'
+
+  # **S3 Bucket with Cross-Region Replication**
+  MyS3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub 'my-bucket-${AWS::Region}-${EnvironmentName}'
+
+  # **Route 53 Health Check**
+  MyRoute53HealthCheck:
+    Type: AWS::Route53::HealthCheck
+    Properties:
+      HealthCheckConfig:
+        HealthCheckProtocol: HTTP
+        Port: 80
+
+  # **AWS Global Accelerator**
+  MyGlobalAccelerator:
+    Type: AWS::GlobalAccelerator::Accelerator
+    Properties:
+      Name: !Sub 'my-accelerator-${EnvironmentName}'
+
+Outputs:
+  VpcId:
+    Value: !Ref MyVPC
+    Description: ID of the VPC
